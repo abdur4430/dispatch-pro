@@ -1,0 +1,310 @@
+generator client {
+  provider = "prisma-client"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "sqlite"
+}
+
+model User {
+  id           String   @id @default(cuid())
+  email        String   @unique
+  passwordHash String
+  name         String?
+  role         UserRole @default(DISPATCHER)
+  companyId    String?
+  company      Company? @relation(fields: [companyId], references: [id])
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  @@index([email])
+  @@index([companyId])
+}
+
+enum UserRole {
+  OWNER
+  ADMIN
+  DISPATCHER
+  VIEWER
+}
+
+model Company {
+  id             String   @id @default(cuid())
+  name           String
+  dotNumber      String?  @unique
+  mcNumber       String?  @unique
+  address        String?
+  city           String?
+  state          String?
+  zip            String?
+  country        String   @default("US")
+  phone          String?
+  email          String?
+  website        String?
+  logoUrl        String?
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  users          User[]
+  trucks         Truck[]
+  drivers        Driver[]
+  clients        Client[]
+  dispatchOrders DispatchOrder[]
+}
+
+model Truck {
+  id                String         @id @default(cuid())
+  companyId         String
+  company           Company        @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  unitNumber        String
+  make              String?
+  model             String?
+  year              Int?
+  vin               String?        @unique
+  licensePlate      String?
+  licensePlateState String?
+  color             String?
+  size              TruckSize
+  usageType         TruckUsageType
+  segment           TruckSegment
+  status            TruckStatus    @default(AVAILABLE)
+  loadCapacityLbs   Float?
+  maxWeightLbs      Float?
+  lengthFt          Float?
+  widthFt           Float?
+  heightFt          Float?
+  distanceRange     DistanceRange
+  notes             String?
+  createdAt         DateTime       @default(now())
+  updatedAt         DateTime       @updatedAt
+
+  drivers        Driver[]
+  licenses       TruckLicense[]
+  dispatchOrders DispatchOrder[]
+
+  @@index([companyId])
+  @@index([status])
+}
+
+enum TruckSize {
+  CARGO_VAN
+  SPRINTER_VAN
+  BOX_TRUCK_16FT
+  BOX_TRUCK_24FT
+  FLATBED
+  STEP_DECK
+  LOWBOY
+  SEMI_DRY_VAN
+  SEMI_REEFER
+  SEMI_TANKER
+  SEMI_DUMP
+  OTHER
+}
+
+enum TruckUsageType {
+  DEDICATED
+  SPOT_MARKET
+  OWNER_OPERATOR
+  LEASE
+  RENTAL
+}
+
+enum TruckSegment {
+  LTL
+  FTL
+  PARTIAL_LOAD
+  EXPEDITED
+  SPECIALIZED
+  HAZMAT
+}
+
+enum TruckStatus {
+  AVAILABLE
+  ON_ROUTE
+  MAINTENANCE
+  OUT_OF_SERVICE
+  RESERVED
+}
+
+enum DistanceRange {
+  LOCAL
+  REGIONAL
+  LONG_HAUL
+  ANY
+}
+
+model TruckLicense {
+  id            String    @id @default(cuid())
+  truckId       String
+  truck         Truck     @relation(fields: [truckId], references: [id], onDelete: Cascade)
+  licenseType   String
+  licenseNumber String?
+  issuedBy      String?
+  issuedAt      DateTime?
+  expiresAt     DateTime?
+  documentUrl   String?
+  notes         String?
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  @@index([truckId])
+  @@index([expiresAt])
+}
+
+model Driver {
+  id              String       @id @default(cuid())
+  companyId       String
+  company         Company      @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  firstName       String
+  lastName        String
+  email           String?
+  phone           String?
+  address         String?
+  city            String?
+  state           String?
+  zip             String?
+  licenseNumber   String?
+  licenseState    String?
+  licenseClass    String?
+  licenseExpiry   DateTime?
+  status          DriverStatus @default(AVAILABLE)
+  hireDate        DateTime?
+  terminationDate DateTime?
+  notes           String?
+  assignedTruckId String?
+  assignedTruck   Truck?       @relation(fields: [assignedTruckId], references: [id])
+  createdAt       DateTime     @default(now())
+  updatedAt       DateTime     @updatedAt
+
+  dispatchOrders DispatchOrder[]
+
+  @@index([companyId])
+  @@index([status])
+}
+
+enum DriverStatus {
+  AVAILABLE
+  ON_DUTY
+  OFF_DUTY
+  ON_LEAVE
+  TERMINATED
+}
+
+model Client {
+  id             String   @id @default(cuid())
+  companyId      String
+  company        Company  @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  name           String
+  contactName    String?
+  email          String?
+  phone          String?
+  address        String?
+  city           String?
+  state          String?
+  zip            String?
+  country        String   @default("US")
+  billingName    String?
+  billingAddress String?
+  billingCity    String?
+  billingState   String?
+  billingZip     String?
+  billingEmail   String?
+  paymentTerms   String?
+  creditLimit    Float?
+  notes          String?
+  isActive       Boolean  @default(true)
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  dispatchOrders DispatchOrder[]
+
+  @@index([companyId])
+}
+
+model DispatchOrder {
+  id                  String         @id @default(cuid())
+  orderNumber         String         @unique
+  companyId           String
+  company             Company        @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  truckId             String?
+  truck               Truck?         @relation(fields: [truckId], references: [id])
+  driverId            String?
+  driver              Driver?        @relation(fields: [driverId], references: [id])
+  clientId            String?
+  client              Client?        @relation(fields: [clientId], references: [id])
+  originAddress       String
+  originCity          String
+  originState         String
+  originZip           String?
+  originLat           Float?
+  originLng           Float?
+  destAddress         String
+  destCity            String
+  destState           String
+  destZip             String?
+  destLat             Float?
+  destLng             Float?
+  distanceMiles       Float?
+  pickupAt            DateTime?
+  deliveryAt          DateTime?
+  actualPickupAt      DateTime?
+  actualDeliveryAt    DateTime?
+  loadDescription     String?
+  weightLbs           Float?
+  pieces              Int?
+  pallets             Int?
+  hazmat              Boolean        @default(false)
+  hazmatClass         String?
+  specialInstructions String?
+  referenceNumber     String?
+  rate                Float?
+  rateType            RateType       @default(FLAT)
+  fuelSurcharge       Float?
+  totalCharge         Float?
+  driverPay           Float?
+  status              DispatchStatus @default(PENDING)
+  notes               String?
+  createdAt           DateTime       @default(now())
+  updatedAt           DateTime       @updatedAt
+
+  statusHistory DispatchStatusEvent[]
+
+  @@index([companyId])
+  @@index([status])
+  @@index([truckId])
+  @@index([driverId])
+  @@index([clientId])
+}
+
+enum DispatchStatus {
+  PENDING
+  CONFIRMED
+  IN_TRANSIT
+  AT_PICKUP
+  LOADED
+  AT_DELIVERY
+  DELIVERED
+  COMPLETED
+  CANCELLED
+  ON_HOLD
+}
+
+enum RateType {
+  FLAT
+  PER_MILE
+  PER_HUNDREDWEIGHT
+  PER_PALLET
+}
+
+model DispatchStatusEvent {
+  id              String         @id @default(cuid())
+  dispatchOrderId String
+  dispatchOrder   DispatchOrder  @relation(fields: [dispatchOrderId], references: [id], onDelete: Cascade)
+  status          DispatchStatus
+  note            String?
+  occurredAt      DateTime       @default(now())
+  createdAt       DateTime       @default(now())
+
+  @@index([dispatchOrderId])
+}

@@ -1,26 +1,135 @@
 @import "tailwindcss";
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
-}
-
 @theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+  --color-background: #020617;
+  --color-foreground: #f1f5f9;
+  --font-sans: var(--font-inter);
+
+  --color-brand-50: #eff6ff;
+  --color-brand-100: #dbeafe;
+  --color-brand-400: #60a5fa;
+  --color-brand-500: #3b82f6;
+  --color-brand-600: #2563eb;
+  --color-brand-700: #1d4ed8;
+  --color-brand-800: #1e40af;
+  --color-brand-900: #1e3a8a;
+
+  --color-steel-50: #f8fafc;
+  --color-steel-100: #f1f5f9;
+  --color-steel-200: #e2e8f0;
+  --color-steel-300: #cbd5e1;
+  --color-steel-400: #94a3b8;
+  --color-steel-500: #64748b;
+  --color-steel-600: #475569;
+  --color-steel-700: #334155;
+  --color-steel-800: #1e293b;
+  --color-steel-900: #0f172a;
+  --color-steel-950: #020617;
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+/* ─── Semantic Tokens ─────────────────────────────────── */
+:root {
+  --dp-bg:           #020617;
+  --dp-bg-alt:       #0f172a;
+  --dp-surface:      #1e293b;
+  --dp-border:       #1e293b;
+  --dp-text:         #f1f5f9;
+  --dp-text-muted:   #94a3b8;
+  --dp-text-faint:   #475569;
+  --dp-sidebar-bg:   #0f172a;
+  --dp-topbar-bg:    rgba(15,23,42,0.85);
+  --dp-card-bg:      rgba(15,23,42,0.7);
+  --dp-input-bg:     #0f172a;
+  --dp-input-border: #334155;
+  --dp-hover:        #1e293b;
+}
+
+html.light {
+  --dp-bg:           #f1f5f9;
+  --dp-bg-alt:       #e2e8f0;
+  --dp-surface:      #ffffff;
+  --dp-border:       #cbd5e1;
+  --dp-text:         #0f172a;
+  --dp-text-muted:   #475569;
+  --dp-text-faint:   #94a3b8;
+  --dp-sidebar-bg:   #ffffff;
+  --dp-topbar-bg:    rgba(255,255,255,0.9);
+  --dp-card-bg:      rgba(255,255,255,0.9);
+  --dp-input-bg:     #f8fafc;
+  --dp-input-border: #cbd5e1;
+  --dp-hover:        #f1f5f9;
+  color-scheme: light;
+}
+
+/* Theme utility classes */
+.dp-bg           { background: var(--dp-bg); }
+.dp-bg-alt       { background: var(--dp-bg-alt); }
+.dp-surface      { background: var(--dp-surface); }
+.dp-border       { border-color: var(--dp-border); }
+.dp-text         { color: var(--dp-text); }
+.dp-text-muted   { color: var(--dp-text-muted); }
+.dp-text-faint   { color: var(--dp-text-faint); }
+.dp-sidebar      { background: var(--dp-sidebar-bg); }
+.dp-topbar       { background: var(--dp-topbar-bg); }
+.dp-card         { background: var(--dp-card-bg); }
+.dp-input        { background: var(--dp-input-bg); border-color: var(--dp-input-border); }
+.dp-hover:hover  { background: var(--dp-hover); }
+
+* { box-sizing: border-box; }
+
+html {
+  color-scheme: dark;
 }
 
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  background: var(--dp-bg);
+  color: var(--dp-text);
+  font-family: var(--font-inter), system-ui, sans-serif;
+  transition: background 0.2s, color 0.2s;
+}
+
+/* Scrollbar */
+::-webkit-scrollbar { width: 6px; height: 6px; }
+::-webkit-scrollbar-track { background: var(--dp-bg-alt); }
+::-webkit-scrollbar-thumb { background: var(--dp-surface); border-radius: 3px; }
+::-webkit-scrollbar-thumb:hover { background: var(--dp-text-faint); }
+
+/* Selection */
+::selection { background: #1d4ed8; color: #fff; }
+
+/* Dialer keypad button */
+.key-btn {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  width: 72px;
+  height: 72px;
+  border-radius: 50%;
+  background: var(--dp-surface);
+  border: 1px solid var(--dp-border);
+  cursor: pointer;
+  transition: all 0.1s;
+  user-select: none;
+}
+.key-btn:hover  { background: var(--dp-hover); transform: scale(1.04); }
+.key-btn:active { transform: scale(0.96); }
+
+/* Pulse animation for active call */
+@keyframes pulse-ring {
+  0%   { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(34,197,94,0.4); }
+  70%  { transform: scale(1);    box-shadow: 0 0 0 10px rgba(34,197,94,0); }
+  100% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(34,197,94,0); }
+}
+.animate-pulse-ring { animation: pulse-ring 2s cubic-bezier(0.215,0.61,0.355,1) infinite; }
+
+/* Shimmer for loading states */
+@keyframes shimmer {
+  from { background-position: -200% 0; }
+  to   { background-position: 200% 0; }
+}
+.shimmer {
+  background: linear-gradient(90deg, var(--dp-surface) 25%, var(--dp-hover) 50%, var(--dp-surface) 75%);
+  background-size: 200% 100%;
+  animation: shimmer 1.5s infinite;
 }
