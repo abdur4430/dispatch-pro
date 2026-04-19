@@ -5,7 +5,7 @@ import { signOut } from "next-auth/react";
 import { cn } from "@/lib/utils";
 import {
   LayoutDashboard, Truck, Users, UserCircle, Navigation, Building2,
-  Settings, LogOut, Zap, Phone, Globe, BookOpen, ChevronDown, ChevronRight
+  Settings, LogOut, Zap, Phone, Globe, BookOpen, ChevronDown, ChevronRight, Map
 } from "lucide-react";
 import { useState } from "react";
 
@@ -15,8 +15,9 @@ const mainNav = [
   { href: "/drivers",    icon: UserCircle,        label: "Drivers" },
   { href: "/clients",    icon: Users,             label: "Clients" },
   { href: "/dispatch",   icon: Navigation,        label: "Dispatch" },
-  { href: "/dialer",     icon: Phone,             label: "Dialer", badge: "NEW" },
-  { href: "/market",     icon: Globe,             label: "Market", badge: "NEW" },
+  { href: "/map",        icon: Map,               label: "Route Map", badge: "NEW" },
+  { href: "/dialer",     icon: Phone,             label: "Dialer" },
+  { href: "/market",     icon: Globe,             label: "Market" },
 ];
 
 const guideNav = [
